@@ -1,0 +1,2031 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudyCafe – Temukan Tempat Belajar Idealmu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            colors: {
+              brand: {
+                50: '#fffbeb',
+                100: '#fef3c7',
+                200: '#fde68a',
+                300: '#fcd34d',
+                400: '#fbbf24',
+                500: '#f59e0b',
+                600: '#d97706',
+                700: '#b45309',
+                800: '#92400e',
+                900: '#78350f',
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: #333 #0a0a0a;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0a0a0a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 3px;
+      }
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+      }
+      .star-btn {
+        cursor: pointer;
+        transition:
+          color 0.15s,
+          transform 0.15s;
+      }
+      .star-btn:hover {
+        transform: scale(1.2);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(40px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes pulse-glow {
+        0%,
+        100% {
+          box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+        }
+        50% {
+          box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+        }
+      }
+      .anim-fade {
+        animation: fadeIn 0.5s ease-out both;
+      }
+      .anim-slide {
+        animation: slideUp 0.6s ease-out both;
+      }
+      .delay-1 {
+        animation-delay: 0.1s;
+      }
+      .delay-2 {
+        animation-delay: 0.2s;
+      }
+      .delay-3 {
+        animation-delay: 0.3s;
+      }
+      .delay-4 {
+        animation-delay: 0.4s;
+      }
+      .seat {
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .seat:hover:not(.taken):not(.selected) {
+        background: #78350f !important;
+        color: #fbbf24 !important;
+        transform: scale(1.08);
+      }
+      .seat.taken {
+        background: #1c1c1c !important;
+        color: #404040 !important;
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+      .seat.selected {
+        background: #f59e0b !important;
+        color: #000 !important;
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+        transform: scale(1.08);
+      }
+      .gallery-img {
+        transition:
+          transform 0.5s,
+          filter 0.5s;
+      }
+      .gallery-img:hover {
+        transform: scale(1.05);
+        filter: brightness(1.1);
+      }
+      .toast-anim {
+        animation: fadeIn 0.3s ease-out;
+      }
+      .time-slot {
+        transition: all 0.15s;
+      }
+      .time-slot:hover:not(:disabled):not(.ts-selected) {
+        border-color: rgba(245, 158, 11, 0.4);
+        color: #fbbf24;
+      }
+      .ts-selected {
+        background: #f59e0b !important;
+        color: #000 !important;
+        border-color: #f59e0b !important;
+        font-weight: 600;
+      }
+      .card-hover {
+        transition: all 0.4s;
+      }
+      .card-hover:hover {
+        border-color: rgba(245, 158, 11, 0.25);
+        transform: translateY(-2px);
+      }
+      .vibe-active {
+        background: rgba(245, 158, 11, 0.15) !important;
+        color: #fbbf24 !important;
+        border-color: rgba(245, 158, 11, 0.3) !important;
+      }
+    </style>
+  </head>
+  <body class="bg-[#0a0a0a] text-white font-sans">
+    <!-- TOAST CONTAINER -->
+    <div
+      id="toast-box"
+      class="fixed top-20 right-4 z-[200] flex flex-col gap-2 pointer-events-none"
+    ></div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="showPage('home')">
+          <iconify-icon icon="lucide:coffee" class="text-brand-500 text-2xl"></iconify-icon>
+          <span class="text-xl font-bold">
+            Study
+            <span class="text-brand-500">Cafe</span>
+          </span>
+        </div>
+        <div class="hidden md:flex items-center gap-1">
+          <button
+            onclick="showPage('home')"
+            class="nav-btn px-4 py-2 rounded-lg text-sm font-medium text-stone-400 hover:text-white hover:bg-white/5 transition-colors"
+          >
+            Beranda
+          </button>
+          <button
+            onclick="showPage('catalog')"
+            class="nav-btn px-4 py-2 rounded-lg text-sm font-medium text-stone-400 hover:text-white hover:bg-white/5 transition-colors"
+          >
+            Katalog
+          </button>
+          <button
+            onclick="showPage('admin')"
+            class="nav-btn px-4 py-2 rounded-lg text-sm font-medium text-stone-400 hover:text-white hover:bg-white/5 transition-colors"
+          >
+            Admin
+          </button>
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            id="btn-out"
+            onclick="openModal('auth-modal')"
+            class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-black font-semibold text-sm rounded-lg transition-colors"
+          >
+            Login
+          </button>
+          <div id="btn-in" class="hidden items-center gap-3">
+            <button
+              onclick="showPage('mybookings')"
+              class="px-3 py-2 rounded-lg text-sm font-medium text-stone-400 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-1.5"
+            >
+              <iconify-icon icon="lucide:calendar-check" class="text-base"></iconify-icon>
+              <span class="hidden sm:inline">Booking Saya</span>
+            </button>
+            <div class="relative">
+              <div class="flex items-center gap-2 cursor-pointer" onclick="toggleDD()">
+                <div
+                  class="w-8 h-8 rounded-full bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-brand-400 text-sm font-bold"
+                  id="u-avatar"
+                >
+                  U
+                </div>
+                <iconify-icon
+                  icon="lucide:chevron-down"
+                  class="text-stone-500 text-sm transition-transform"
+                  id="dd-arrow"
+                ></iconify-icon>
+              </div>
+              <div
+                id="dd-menu"
+                class="hidden absolute top-12 right-0 bg-neutral-900 border border-white/10 rounded-xl p-2 min-w-[200px] shadow-2xl"
+              >
+                <div class="px-3 py-2 border-b border-white/10 mb-1">
+                  <p class="text-sm font-semibold" id="dd-name">User</p>
+                  <p class="text-xs text-stone-500" id="dd-email">user@email.com</p>
+                </div>
+                <button
+                  onclick="
+                    showPage('mybookings');
+                    closeDD();
+                  "
+                  class="w-full text-left px-3 py-2 text-sm text-stone-400 hover:text-white hover:bg-white/5 rounded-lg flex items-center gap-2"
+                >
+                  <iconify-icon icon="lucide:calendar-check"></iconify-icon>
+                  Booking Saya
+                </button>
+                <button
+                  onclick="logout()"
+                  class="w-full text-left px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 rounded-lg flex items-center gap-2"
+                >
+                  <iconify-icon icon="lucide:log-out"></iconify-icon>
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+          <button
+            class="md:hidden text-stone-400 hover:text-white"
+            onclick="document.getElementById('mob-menu').classList.toggle('hidden')"
+          >
+            <iconify-icon icon="lucide:menu" class="text-2xl"></iconify-icon>
+          </button>
+        </div>
+      </div>
+      <div
+        id="mob-menu"
+        class="hidden md:hidden border-t border-white/10 px-4 pb-3 bg-[#0a0a0a]/95 backdrop-blur-xl"
+      >
+        <button
+          onclick="
+            showPage('home');
+            closeMob();
+          "
+          class="block w-full text-left px-3 py-2.5 text-sm text-stone-400 hover:text-white"
+        >
+          Beranda
+        </button>
+        <button
+          onclick="
+            showPage('catalog');
+            closeMob();
+          "
+          class="block w-full text-left px-3 py-2.5 text-sm text-stone-400 hover:text-white"
+        >
+          Katalog
+        </button>
+        <button
+          onclick="
+            showPage('admin');
+            closeMob();
+          "
+          class="block w-full text-left px-3 py-2.5 text-sm text-stone-400 hover:text-white"
+        >
+          Admin
+        </button>
+      </div>
+    </nav>
+
+    <!-- ===== AUTH MODAL ===== -->
+    <div
+      id="auth-modal"
+      class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/70 backdrop-blur-sm"
+      onclick="if (event.target === this) closeModal('auth-modal');"
+    >
+      <div
+        class="bg-neutral-900 border border-white/10 rounded-2xl p-8 w-full max-w-md mx-4 anim-slide"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold" id="auth-title">Login</h2>
+          <button
+            onclick="closeModal('auth-modal')"
+            class="text-stone-500 hover:text-white transition-colors"
+          >
+            <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+          </button>
+        </div>
+        <div id="auth-login">
+          <div class="space-y-4">
+            <div>
+              <label class="text-sm text-stone-400 mb-1.5 block">Email</label>
+              <input
+                id="l-email"
+                type="email"
+                class="w-full px-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-brand-500 transition-colors"
+                placeholder="nama@email.com"
+              />
+            </div>
+            <div>
+              <label class="text-sm text-stone-400 mb-1.5 block">Password</label>
+              <input
+                id="l-pass"
+                type="password"
+                class="w-full px-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-brand-500 transition-colors"
+                placeholder="••••••••"
+              />
+            </div>
+            <button
+              onclick="doLogin()"
+              class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-black font-semibold rounded-lg transition-colors"
+            >
+              Masuk
+            </button>
+          </div>
+          <p class="text-sm text-stone-500 mt-5 text-center">
+            Belum punya akun?
+            <button
+              onclick="switchAuth('reg')"
+              class="text-brand-400 hover:text-brand-300 font-medium"
+            >
+              Daftar
+            </button>
+          </p>
+        </div>
+        <div id="auth-reg" class="hidden">
+          <div class="space-y-4">
+            <div>
+              <label class="text-sm text-stone-400 mb-1.5 block">Nama Lengkap</label>
+              <input
+                id="r-name"
+                type="text"
+                class="w-full px-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-brand-500 transition-colors"
+                placeholder="Nama lengkap"
+              />
+            </div>
+            <div>
+              <label class="text-sm text-stone-400 mb-1.5 block">Email</label>
+              <input
+                id="r-email"
+                type="email"
+                class="w-full px-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-brand-500 transition-colors"
+                placeholder="nama@email.com"
+              />
+            </div>
+            <div>
+              <label class="text-sm text-stone-400 mb-1.5 block">Password</label>
+              <input
+                id="r-pass"
+                type="password"
+                class="w-full px-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-brand-500 transition-colors"
+                placeholder="Min. 6 karakter"
+              />
+            </div>
+            <button
+              onclick="doRegister()"
+              class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-black font-semibold rounded-lg transition-colors"
+            >
+              Daftar
+            </button>
+          </div>
+          <p class="text-sm text-stone-500 mt-5 text-center">
+            Sudah punya akun?
+            <button
+              onclick="switchAuth('login')"
+              class="text-brand-400 hover:text-brand-300 font-medium"
+            >
+              Masuk
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BOOKING MODAL ===== -->
+    <div
+      id="booking-modal"
+      class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/70 backdrop-blur-sm overflow-y-auto"
+      onclick="if (event.target === this) closeModal('booking-modal');"
+    >
+      <div
+        class="bg-neutral-900 border border-white/10 rounded-2xl p-6 sm:p-8 w-full max-w-lg mx-4 my-8 anim-slide"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Booking Seat</h2>
+          <button
+            onclick="closeModal('booking-modal')"
+            class="text-stone-500 hover:text-white transition-colors"
+          >
+            <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+          </button>
+        </div>
+        <div id="bk-cafename" class="text-brand-400 font-semibold mb-5 flex items-center gap-2">
+          <iconify-icon icon="lucide:coffee"></iconify-icon>
+          <span></span>
+        </div>
+        <div class="space-y-5">
+          <div>
+            <label class="text-sm text-stone-400 mb-2 block font-medium">📅 Pilih Tanggal</label>
+            <input
+              id="bk-date"
+              type="date"
+              class="w-full px-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-brand-500 transition-colors"
+              onchange="regenSeats()"
+            />
+          </div>
+          <div>
+            <label class="text-sm text-stone-400 mb-2 block font-medium">🕐 Pilih Jam</label>
+            <div class="grid grid-cols-4 sm:grid-cols-5 gap-2" id="time-grid"></div>
+          </div>
+          <div>
+            <label class="text-sm text-stone-400 mb-2 block font-medium">💺 Pilih Seat</label>
+            <div class="bg-neutral-800/60 rounded-xl p-4 border border-white/10">
+              <div class="text-center mb-3">
+                <div
+                  class="inline-block bg-neutral-700 rounded-lg px-8 py-1.5 text-xs text-stone-400 tracking-wider"
+                >
+                  — MEJA —
+                </div>
+              </div>
+              <div class="grid grid-cols-5 gap-2" id="seat-grid"></div>
+              <div class="flex items-center gap-4 mt-3 text-xs text-stone-500 justify-center">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded bg-neutral-700 inline-block"></span>
+                  Tersedia
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded bg-brand-500 inline-block"></span>
+                  Dipilih
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded bg-neutral-800 opacity-50 inline-block"></span>
+                  Terisi
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            id="bk-summary"
+            class="hidden bg-brand-500/5 border border-brand-500/20 rounded-xl p-4"
+          >
+            <p class="text-xs text-stone-500 uppercase tracking-wider mb-1">Ringkasan Booking</p>
+            <p class="font-semibold text-sm" id="bk-sum-text"></p>
+          </div>
+          <button
+            onclick="confirmBooking()"
+            class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
+          >
+            <iconify-icon icon="lucide:check-circle"></iconify-icon>
+            Konfirmasi Booking
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== REVIEW MODAL ===== -->
+    <div
+      id="review-modal"
+      class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/70 backdrop-blur-sm overflow-y-auto"
+      onclick="if (event.target === this) closeModal('review-modal');"
+    >
+      <div
+        class="bg-neutral-900 border border-white/10 rounded-2xl p-6 sm:p-8 w-full max-w-lg mx-4 my-8 anim-slide"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Tulis Review</h2>
+          <button
+            onclick="closeModal('review-modal')"
+            class="text-stone-500 hover:text-white transition-colors"
+          >
+            <iconify-icon icon="lucide:x" class="text-xl"></iconify-icon>
+          </button>
+        </div>
+        <div class="space-y-5">
+          <div>
+            <label class="text-sm text-stone-400 mb-2 block font-medium">Rating</label>
+            <div class="flex gap-1" id="rev-stars">
+              <span onclick="setRevRating(1)" class="star-btn text-4xl text-stone-700">★</span>
+              <span onclick="setRevRating(2)" class="star-btn text-4xl text-stone-700">★</span>
+              <span onclick="setRevRating(3)" class="star-btn text-4xl text-stone-700">★</span>
+              <span onclick="setRevRating(4)" class="star-btn text-4xl text-stone-700">★</span>
+              <span onclick="setRevRating(5)" class="star-btn text-4xl text-stone-700">★</span>
+            </div>
+            <p class="text-xs text-stone-600 mt-1" id="rev-rating-label">
+              Klik untuk memberi rating
+            </p>
+          </div>
+          <div>
+            <label class="text-sm text-stone-400 mb-2 block font-medium">Review Kamu</label>
+            <textarea
+              id="rev-text"
+              rows="4"
+              class="w-full px-4 py-3 bg-neutral-800 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-brand-500 resize-none transition-colors"
+              placeholder="Ceritakan pengalamanmu belajar di sini..."
+            ></textarea>
+          </div>
+          <div>
+            <label class="text-sm text-stone-400 mb-2 block font-medium">
+              Upload Foto (opsional)
+            </label>
+            <div
+              id="photo-area"
+              class="border-2 border-dashed border-white/10 rounded-xl p-6 text-center cursor-pointer hover:border-brand-500/30 transition-colors"
+              onclick="document.getElementById('photo-inp').click()"
+            >
+              <iconify-icon
+                icon="lucide:image-plus"
+                class="text-3xl text-stone-600 mb-2"
+              ></iconify-icon>
+              <p class="text-sm text-stone-500">Klik untuk upload foto</p>
+              <input
+                type="file"
+                id="photo-inp"
+                accept="image/*"
+                class="hidden"
+                onchange="handlePhoto(this)"
+              />
+            </div>
+            <div id="photo-prev" class="hidden mt-3">
+              <img
+                id="photo-img"
+                class="w-24 h-24 object-cover rounded-lg border border-white/10"
+              />
+            </div>
+          </div>
+          <button
+            onclick="submitReview()"
+            class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
+          >
+            <iconify-icon icon="lucide:send"></iconify-icon>
+            Kirim Review
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LIGHTBOX ===== -->
+    <div
+      id="lightbox"
+      class="fixed inset-0 z-[150] hidden items-center justify-center bg-black/90 backdrop-blur-sm cursor-zoom-out"
+      onclick="closeLB()"
+    >
+      <button class="absolute top-4 right-4 text-white/60 hover:text-white z-10 transition-colors">
+        <iconify-icon icon="lucide:x" class="text-3xl"></iconify-icon>
+      </button>
+      <button
+        onclick="
+          event.stopPropagation();
+          navLB(-1);
+        "
+        class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+      >
+        <iconify-icon icon="lucide:chevron-left" class="text-xl"></iconify-icon>
+      </button>
+      <button
+        onclick="
+          event.stopPropagation();
+          navLB(1);
+        "
+        class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+      >
+        <iconify-icon icon="lucide:chevron-right" class="text-xl"></iconify-icon>
+      </button>
+      <img
+        id="lb-img"
+        class="max-w-[90vw] max-h-[85vh] object-contain rounded-lg cursor-default"
+        onclick="event.stopPropagation()"
+      />
+      <div class="absolute bottom-6 text-sm text-stone-400" id="lb-counter"></div>
+    </div>
+
+    <!-- ====================== HOME PAGE ====================== -->
+    <div id="page-home" class="page active">
+      <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1920&q=80"
+          class="absolute inset-0 w-full h-full object-cover opacity-30"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/60 via-[#0a0a0a]/30 to-[#0a0a0a]"
+        ></div>
+        <div
+          class="absolute inset-0 opacity-[0.03]"
+          style="
+            background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E');
+          "
+        ></div>
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+          <div class="anim-fade">
+            <div
+              class="inline-flex items-center gap-2 px-4 py-2 bg-brand-500/10 border border-brand-500/20 rounded-full text-brand-400 text-xs font-semibold tracking-wider uppercase mb-8"
+            >
+              <iconify-icon icon="lucide:sparkles"></iconify-icon>
+              Platform Pencarian Tempat Belajar
+            </div>
+          </div>
+          <h1
+            class="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6 anim-fade delay-1"
+          >
+            Temukan
+            <span class="text-brand-400">Tempat Belajar</span>
+            <br />
+            Idealmu
+          </h1>
+          <p
+            class="text-lg sm:text-xl text-stone-400 font-light leading-relaxed max-w-2xl mx-auto mb-10 anim-fade delay-2"
+          >
+            Cari kafe & coworking space terbaik untuk belajar berdasarkan WiFi, colokan, tingkat
+            kebisingan, dan vibe aesthetic.
+          </p>
+          <div class="max-w-2xl mx-auto anim-fade delay-3">
+            <div
+              class="flex flex-col sm:flex-row gap-3 p-3 bg-neutral-900/80 border border-white/10 rounded-2xl backdrop-blur-xl"
+            >
+              <div class="flex-1 relative">
+                <iconify-icon
+                  icon="lucide:search"
+                  class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500"
+                ></iconify-icon>
+                <input
+                  id="hero-search"
+                  type="text"
+                  placeholder="Cari nama kafe atau lokasi..."
+                  class="w-full pl-10 pr-4 py-3 bg-neutral-800 border border-white/5 rounded-xl text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
+                  onkeydown="if (event.key === 'Enter') heroSearch();"
+                />
+              </div>
+              <button
+                onclick="heroSearch()"
+                class="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-black font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+              >
+                <iconify-icon icon="lucide:search"></iconify-icon>
+                Cari
+              </button>
+            </div>
+          </div>
+          <div class="flex flex-wrap justify-center gap-2 mt-6 anim-fade delay-4">
+            <button
+              onclick="quickFilter('wifi')"
+              class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm text-stone-400 hover:text-white hover:border-brand-500/30 transition-all flex items-center gap-1.5"
+            >
+              <iconify-icon icon="lucide:wifi"></iconify-icon>
+              WiFi Kencang
+            </button>
+            <button
+              onclick="quickFilter('quiet')"
+              class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm text-stone-400 hover:text-white hover:border-brand-500/30 transition-all flex items-center gap-1.5"
+            >
+              <iconify-icon icon="lucide:volume-x"></iconify-icon>
+              Tenang
+            </button>
+            <button
+              onclick="quickFilter('outlet')"
+              class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm text-stone-400 hover:text-white hover:border-brand-500/30 transition-all flex items-center gap-1.5"
+            >
+              <iconify-icon icon="lucide:plug"></iconify-icon>
+              Banyak Colokan
+            </button>
+            <button
+              onclick="quickFilter('aesthetic')"
+              class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm text-stone-400 hover:text-white hover:border-brand-500/30 transition-all flex items-center gap-1.5"
+            >
+              <iconify-icon icon="lucide:camera"></iconify-icon>
+              Aesthetic
+            </button>
+          </div>
+        </div>
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+          <iconify-icon icon="lucide:chevrons-down" class="text-2xl text-stone-600"></iconify-icon>
+        </div>
+      </section>
+
+      <!-- Popular -->
+      <section class="py-24 px-4 sm:px-6">
+        <div class="max-w-7xl mx-auto">
+          <div class="flex items-end justify-between mb-10">
+            <div>
+              <p class="text-brand-400 text-sm font-semibold tracking-wider uppercase mb-2">
+                Populer
+              </p>
+              <h2 class="text-3xl sm:text-4xl font-bold tracking-tight">
+                Tempat Favorit Mahasiswa
+              </h2>
+            </div>
+            <button
+              onclick="showPage('catalog')"
+              class="hidden sm:flex items-center gap-2 text-sm text-brand-400 hover:text-brand-300 font-medium transition-colors"
+            >
+              Lihat Semua
+              <iconify-icon icon="lucide:arrow-right"></iconify-icon>
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="popular-grid"></div>
+        </div>
+      </section>
+
+      <!-- How It Works -->
+      <section class="py-24 px-4 sm:px-6 border-t border-white/5">
+        <div class="max-w-5xl mx-auto text-center">
+          <p class="text-brand-400 text-sm font-semibold tracking-wider uppercase mb-2">
+            Cara Kerja
+          </p>
+          <h2 class="text-3xl sm:text-4xl font-bold tracking-tight mb-16">Semudah 1-2-3</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div
+              class="p-8 bg-neutral-900/50 border border-white/5 rounded-2xl hover:border-brand-500/20 transition-colors"
+            >
+              <div
+                class="w-14 h-14 bg-brand-500/10 border border-brand-500/20 rounded-2xl flex items-center justify-center mb-5 mx-auto"
+              >
+                <iconify-icon icon="lucide:search" class="text-brand-400 text-2xl"></iconify-icon>
+              </div>
+              <h3 class="text-lg font-semibold mb-3">Cari & Filter</h3>
+              <p class="text-stone-500 text-sm leading-relaxed">
+                Temukan tempat belajar berdasarkan WiFi, kebisingan, colokan, dan vibe yang kamu
+                mau.
+              </p>
+            </div>
+            <div
+              class="p-8 bg-neutral-900/50 border border-white/5 rounded-2xl hover:border-brand-500/20 transition-colors"
+            >
+              <div
+                class="w-14 h-14 bg-brand-500/10 border border-brand-500/20 rounded-2xl flex items-center justify-center mb-5 mx-auto"
+              >
+                <iconify-icon icon="lucide:armchair" class="text-brand-400 text-2xl"></iconify-icon>
+              </div>
+              <h3 class="text-lg font-semibold mb-3">Booking Seat</h3>
+              <p class="text-stone-500 text-sm leading-relaxed">
+                Pilih seat dan jam belajar favoritmu, booking real-time tanpa ribet.
+              </p>
+            </div>
+            <div
+              class="p-8 bg-neutral-900/50 border border-white/5 rounded-2xl hover:border-brand-500/20 transition-colors"
+            >
+              <div
+                class="w-14 h-14 bg-brand-500/10 border border-brand-500/20 rounded-2xl flex items-center justify-center mb-5 mx-auto"
+              >
+                <iconify-icon icon="lucide:star" class="text-brand-400 text-2xl"></iconify-icon>
+              </div>
+              <h3 class="text-lg font-semibold mb-3">Review & Rating</h3>
+              <p class="text-stone-500 text-sm leading-relaxed">
+                Bagikan pengalamanmu dan bantu mahasiswa lain temukan tempat terbaik.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="py-12 px-4 sm:px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-2 cursor-pointer" onclick="showPage('home')">
+            <iconify-icon icon="lucide:coffee" class="text-brand-500"></iconify-icon>
+            <span class="font-bold">
+              Study
+              <span class="text-brand-500">Cafe</span>
+            </span>
+          </div>
+          <p class="text-sm text-stone-600">© 2025 StudyCafe — Project Pemrograman Aplikasi Web</p>
+          <div class="text-xs text-stone-700 text-center md:text-right">
+            Ai Aminsen • Dino Siagian • Hardiyanti Rahma
+            <br />
+            Yulianti Harum • Sabil Munthe
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- ====================== CATALOG PAGE ====================== -->
+    <div id="page-catalog" class="page">
+      <section class="pt-24 pb-20 px-4 sm:px-6">
+        <div class="max-w-7xl mx-auto">
+          <div class="mb-8">
+            <h2 class="text-3xl font-bold tracking-tight mb-2">Katalog Tempat Belajar</h2>
+            <p class="text-stone-500">Temukan spot belajar paling cocok untuk kamu</p>
+          </div>
+          <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Filters -->
+            <div class="lg:w-72 shrink-0">
+              <div class="bg-neutral-900 border border-white/10 rounded-2xl p-6 sticky top-24">
+                <h3 class="font-semibold mb-5 flex items-center gap-2">
+                  <iconify-icon
+                    icon="lucide:sliders-horizontal"
+                    class="text-brand-400"
+                  ></iconify-icon>
+                  Filter
+                </h3>
+                <div class="space-y-5">
+                  <div>
+                    <label class="text-sm text-stone-400 mb-2 block">🔍 Pencarian</label>
+                    <input
+                      id="f-search"
+                      type="text"
+                      placeholder="Nama/lokasi..."
+                      class="w-full px-3 py-2.5 bg-neutral-800 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand-500 transition-colors"
+                      oninput="applyFilters()"
+                    />
+                  </div>
+                  <div>
+                    <label class="text-sm text-stone-400 mb-2 block">📶 WiFi Rating</label>
+                    <select
+                      id="f-wifi"
+                      onchange="applyFilters()"
+                      class="w-full px-3 py-2.5 bg-neutral-800 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand-500"
+                    >
+                      <option value="">Semua</option>
+                      <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                      <option value="4">⭐⭐⭐⭐+ Good</option>
+                      <option value="3">⭐⭐⭐+ Average</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-sm text-stone-400 mb-2 block">🔇 Noise Level</label>
+                    <select
+                      id="f-noise"
+                      onchange="applyFilters()"
+                      class="w-full px-3 py-2.5 bg-neutral-800 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand-500"
+                    >
+                      <option value="">Semua</option>
+                      <option value="1">Sangat Tenang</option>
+                      <option value="2">Tenang</option>
+                      <option value="3">Sedang</option>
+                      <option value="4">Ramai</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-sm text-stone-400 mb-2 block">🔌 Colokan</label>
+                    <select
+                      id="f-outlet"
+                      onchange="applyFilters()"
+                      class="w-full px-3 py-2.5 bg-neutral-800 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand-500"
+                    >
+                      <option value="">Semua</option>
+                      <option value="banyak">Banyak (≥8)</option>
+                      <option value="sedang">Sedang (4-7)</option>
+                      <option value="sedikit">Sedikit (<4)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-sm text-stone-400 mb-2 block">🎨 Vibe</label>
+                    <div class="flex flex-wrap gap-2" id="vibe-btns">
+                      <button
+                        onclick="toggleVibe(this, 'aesthetic')"
+                        class="vibe-btn px-3 py-1.5 bg-neutral-800 border border-white/10 rounded-full text-xs text-stone-400 transition-all"
+                      >
+                        🌿 Aesthetic
+                      </button>
+                      <button
+                        onclick="toggleVibe(this, 'cozy')"
+                        class="vibe-btn px-3 py-1.5 bg-neutral-800 border border-white/10 rounded-full text-xs text-stone-400 transition-all"
+                      >
+                        🏠 Cozy
+                      </button>
+                      <button
+                        onclick="toggleVibe(this, 'modern')"
+                        class="vibe-btn px-3 py-1.5 bg-neutral-800 border border-white/10 rounded-full text-xs text-stone-400 transition-all"
+                      >
+                        ✨ Modern
+                      </button>
+                      <button
+                        onclick="toggleVibe(this, 'outdoor')"
+                        class="vibe-btn px-3 py-1.5 bg-neutral-800 border border-white/10 rounded-full text-xs text-stone-400 transition-all"
+                      >
+                        🌳 Outdoor
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-sm text-stone-400 mb-2 block">💰 Harga / Jam</label>
+                    <div class="flex gap-2">
+                      <input
+                        id="f-pmin"
+                        type="number"
+                        placeholder="Min"
+                        class="w-1/2 px-3 py-2.5 bg-neutral-800 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand-500"
+                        oninput="applyFilters()"
+                      />
+                      <input
+                        id="f-pmax"
+                        type="number"
+                        placeholder="Max"
+                        class="w-1/2 px-3 py-2.5 bg-neutral-800 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand-500"
+                        oninput="applyFilters()"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onclick="resetFilters()"
+                    class="w-full py-2.5 border border-white/10 rounded-lg text-sm text-stone-400 hover:text-white hover:border-white/20 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <iconify-icon icon="lucide:rotate-ccw"></iconify-icon>
+                    Reset Filter
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- Results -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-4">
+                <p class="text-sm text-stone-500">
+                  <span id="res-count">0</span>
+                  tempat ditemukan
+                </p>
+                <select
+                  id="sort-by"
+                  onchange="applyFilters()"
+                  class="px-3 py-2 bg-neutral-900 border border-white/10 rounded-lg text-sm text-stone-400 focus:outline-none focus:border-brand-500"
+                >
+                  <option value="rating">Rating Tertinggi</option>
+                  <option value="price-low">Harga Terendah</option>
+                  <option value="price-high">Harga Tertinggi</option>
+                  <option value="name">Nama A-Z</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="cat-grid"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ====================== DETAIL PAGE ====================== -->
+    <div id="page-detail" class="page">
+      <section class="pt-20 pb-20 px-4 sm:px-6">
+        <div class="max-w-7xl mx-auto" id="detail-box"></div>
+      </section>
+    </div>
+
+    <!-- ====================== MY BOOKINGS PAGE ====================== -->
+    <div id="page-mybookings" class="page">
+      <section class="pt-24 pb-20 px-4 sm:px-6">
+        <div class="max-w-4xl mx-auto">
+          <h2 class="text-3xl font-bold tracking-tight mb-2">Booking Saya</h2>
+          <p class="text-stone-500 mb-8">Riwayat booking tempat belajar kamu</p>
+          <div id="bk-list"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ====================== ADMIN PAGE ====================== -->
+    <div id="page-admin" class="page">
+      <section class="pt-24 pb-20 px-4 sm:px-6">
+        <div class="max-w-7xl mx-auto">
+          <div class="flex items-center gap-3 mb-8">
+            <div
+              class="w-10 h-10 bg-brand-500/10 border border-brand-500/20 rounded-xl flex items-center justify-center"
+            >
+              <iconify-icon
+                icon="lucide:shield-check"
+                class="text-brand-400 text-xl"
+              ></iconify-icon>
+            </div>
+            <div>
+              <h2 class="text-3xl font-bold tracking-tight">Admin Dashboard</h2>
+              <p class="text-stone-500 text-sm">Kelola tempat dan booking</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-neutral-900 border border-white/10 rounded-2xl p-5">
+              <p class="text-stone-500 text-xs uppercase tracking-wider mb-1">Total Tempat</p>
+              <p class="text-2xl font-bold" id="s-places">0</p>
+            </div>
+            <div class="bg-neutral-900 border border-white/10 rounded-2xl p-5">
+              <p class="text-stone-500 text-xs uppercase tracking-wider mb-1">Total Booking</p>
+              <p class="text-2xl font-bold text-brand-400" id="s-books">0</p>
+            </div>
+            <div class="bg-neutral-900 border border-white/10 rounded-2xl p-5">
+              <p class="text-stone-500 text-xs uppercase tracking-wider mb-1">Total Review</p>
+              <p class="text-2xl font-bold" id="s-revs">0</p>
+            </div>
+            <div class="bg-neutral-900 border border-white/10 rounded-2xl p-5">
+              <p class="text-stone-500 text-xs uppercase tracking-wider mb-1">Avg Rating</p>
+              <p class="text-2xl font-bold text-brand-400" id="s-avg">0</p>
+            </div>
+          </div>
+          <div class="flex gap-1 mb-6 border-b border-white/10">
+            <button
+              onclick="adminTab('places')"
+              class="atab px-4 py-3 text-sm font-medium transition-colors border-b-2"
+              data-t="places"
+            >
+              Manajemen Tempat
+            </button>
+            <button
+              onclick="adminTab('bookings')"
+              class="atab px-4 py-3 text-sm font-medium transition-colors border-b-2"
+              data-t="bookings"
+            >
+              Booking Masuk
+            </button>
+            <button
+              onclick="adminTab('reviews')"
+              class="atab px-4 py-3 text-sm font-medium transition-colors border-b-2"
+              data-t="reviews"
+            >
+              Review Terbaru
+            </button>
+          </div>
+          <div id="ap-places" class="apanel"></div>
+          <div id="ap-bookings" class="apanel hidden"></div>
+          <div id="ap-reviews" class="apanel hidden"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ====================== JAVASCRIPT ====================== -->
+    <script>
+      // ===== DATA =====
+      const cafes = [
+        {
+          id: 1,
+          name: 'Login Cafe',
+          loc: 'Abu Dhabi, UAE',
+          price: 25000,
+          rating: 4.6,
+          revCount: 128,
+          wifi: 5,
+          noise: 2,
+          outlets: 10,
+          vibe: ['aesthetic', 'modern'],
+          desc: 'Kafe modern dengan interior minimalis dan WiFi super kencang. Ideal untuk mengerjakan tugas dan meeting kelompok. Setiap meja dilengkapi colokan listrik.',
+          imgs: [
+            'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1453614512568-c4024d13c247?auto=format&fit=crop&w=800&q=80',
+          ],
+          hours: '08:00 - 23:00',
+          phone: '+971 2 123 4567',
+          amenities: [
+            'WiFi 100Mbps',
+            'Colokan di setiap meja',
+            'AC',
+            'Parkir Luas',
+            'Coffee & Snack',
+            'Meeting Room',
+          ],
+          seats: 20,
+          reviews: [
+            {
+              user: 'Rina A.',
+              rating: 5,
+              text: 'WiFi kencang banget, colokan banyak, tempatnya nyaman banget! Favorite saya buat kerja tugas.',
+              date: '2025-01-10',
+              photo:
+                'https://images.unsplash.com/photo-1509022234591-615ab6e2a5d0?auto=format&fit=crop&w=400&q=80',
+            },
+            {
+              user: 'Budi S.',
+              rating: 4,
+              text: 'Tempatnya aesthetic, cocok buat ngoding. Cuma agak ramai di weekend sih.',
+              date: '2025-01-08',
+            },
+            {
+              user: 'Dewi K.',
+              rating: 5,
+              text: 'Coffee-nya enak, vibe-nya bet banget buat belajar seharian!',
+              date: '2025-01-05',
+              photo:
+                'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=400&q=80',
+            },
+          ],
+        },
+        {
+          id: 2,
+          name: 'Brew & Study',
+          loc: 'Jakarta Selatan',
+          price: 20000,
+          rating: 4.3,
+          revCount: 89,
+          wifi: 4,
+          noise: 1,
+          outlets: 8,
+          vibe: ['cozy', 'aesthetic'],
+          desc: 'Spot belajar paling tenang di Jakarta Selatan. Suasana cozy dengan rak buku dan aroma kopi yang menenangkan. Perfect untuk deep focus.',
+          imgs: [
+            'https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1543003296-7aa8855c06e5?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1509022234591-615ab6e2a5d0?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80',
+          ],
+          hours: '07:00 - 22:00',
+          phone: '+62 21 987 6543',
+          amenities: ['WiFi 50Mbps', 'Colokan', 'Ruang Tenang', 'AC', 'Tea & Coffee', 'Rak Buku'],
+          seats: 15,
+          reviews: [
+            {
+              user: 'Andi P.',
+              rating: 4,
+              text: 'Tempat paling tenang buat fokus. Love it!',
+              date: '2025-01-12',
+            },
+            {
+              user: 'Sari M.',
+              rating: 5,
+              text: 'Aesthetic banget, lengkap sama rak buku. Instagramable!',
+              date: '2025-01-09',
+              photo:
+                'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=400&q=80',
+            },
+          ],
+        },
+        {
+          id: 3,
+          name: 'Kopi Koding',
+          loc: 'Bandung',
+          price: 15000,
+          rating: 4.1,
+          revCount: 67,
+          wifi: 4,
+          noise: 3,
+          outlets: 6,
+          vibe: ['modern'],
+          desc: 'Coworking space dengan konsep tech-friendly. Setiap meja dilengkapi colokan dan lampu baca. Tempatnya para developer dan programmer.',
+          imgs: [
+            'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1526367790999-0150786686a2?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1493837611501-46203b60e36e?auto=format&fit=crop&w=800&q=80',
+          ],
+          hours: '09:00 - 21:00',
+          phone: '+62 22 456 7890',
+          amenities: [
+            'WiFi 50Mbps',
+            'Colokan per meja',
+            'Lampu Baca',
+            'AC',
+            'Printer',
+            'Snack Bar',
+          ],
+          seats: 12,
+          reviews: [
+            {
+              user: 'Fajar R.',
+              rating: 4,
+              text: 'Cocok banget buat programmer, colokan di mana-mana!',
+              date: '2025-01-11',
+            },
+            {
+              user: 'Lina Z.',
+              rating: 4,
+              text: 'Lampu baca per meja itu game changer. Mata jadi gak cepat lelah.',
+              date: '2025-01-07',
+            },
+          ],
+        },
+        {
+          id: 4,
+          name: 'Green Corner Cafe',
+          loc: 'Yogyakarta',
+          price: 10000,
+          rating: 4.8,
+          revCount: 203,
+          wifi: 5,
+          noise: 1,
+          outlets: 12,
+          vibe: ['outdoor', 'aesthetic', 'cozy'],
+          desc: 'Cafe dengan taman hijau yang asri. Belajar sambil menikmati alam, jauh dari hiruk-pikuk kota. Surga bagi pecinta alam dan pencinta ketenangan.',
+          imgs: [
+            'https://images.unsplash.com/photo-1559305616-3f99cd43e353?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1481833761820-0509d3e70870?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1574958269340-fa927503f3dd?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?auto=format&fit=crop&w=800&q=80',
+          ],
+          hours: '06:00 - 22:00',
+          phone: '+62 274 123 456',
+          amenities: [
+            'WiFi 100Mbps',
+            'Taman Outdoor',
+            'Colokan',
+            'AC & Kipas',
+            'Organic Coffee',
+            'Yoga Area',
+          ],
+          seats: 25,
+          reviews: [
+            {
+              user: 'Lina W.',
+              rating: 5,
+              text: 'Pemandangan hijaunya menenangkan, WiFi cepat. Surga buat mahasiswa!',
+              date: '2025-01-13',
+              photo:
+                'https://images.unsplash.com/photo-1559305616-3f99cd43e353?auto=format&fit=crop&w=400&q=80',
+            },
+            {
+              user: 'Tom H.',
+              rating: 5,
+              text: 'Best study spot in Jogja, no doubt. Coming back for sure!',
+              date: '2025-01-07',
+            },
+            {
+              user: 'Maya S.',
+              rating: 4,
+              text: 'Tempatnya cantik banget, cuma agak jauh dari kampus.',
+              date: '2025-01-03',
+            },
+            {
+              user: 'Raka P.',
+              rating: 5,
+              text: 'Organic coffee-nya the best, WiFi stable, viewnya green banget!',
+              date: '2024-12-28',
+              photo:
+                'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=400&q=80',
+            },
+          ],
+        },
+        {
+          id: 5,
+          name: 'Neon Desk Space',
+          loc: 'Surabaya',
+          price: 30000,
+          rating: 4.4,
+          revCount: 54,
+          wifi: 5,
+          noise: 2,
+          outlets: 15,
+          vibe: ['modern'],
+          desc: 'Coworking space premium dengan desain neon-cyber. Dilengkapi ruang meeting, pod telepon, dan kopi artisanal. Untuk yang butuh workspace premium.',
+          imgs: [
+            'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1604328698692-f76ea9498e76?auto=format&fit=crop&w=800&q=80',
+          ],
+          hours: '07:00 - 24:00',
+          phone: '+62 31 555 6789',
+          amenities: [
+            'WiFi 200Mbps',
+            'Meeting Room',
+            'Phone Pod',
+            'Colokan',
+            'Printer 3D',
+            'Artisan Coffee',
+          ],
+          seats: 30,
+          reviews: [
+            {
+              user: 'Raka D.',
+              rating: 5,
+              text: 'Premium banget, worth every rupiah. WiFi 200Mbps insane!',
+              date: '2025-01-14',
+            },
+            {
+              user: 'Nita P.',
+              rating: 4,
+              text: 'Desain neon-nya keren, meeting room-nya lengkap banget.',
+              date: '2025-01-06',
+            },
+          ],
+        },
+        {
+          id: 6,
+          name: 'Rumah Belajar Co-op',
+          loc: 'Malang',
+          price: 8000,
+          rating: 4.0,
+          revCount: 42,
+          wifi: 3,
+          noise: 2,
+          outlets: 4,
+          vibe: ['cozy'],
+          desc: 'Tempat belajar komunitas yang affordable. Suasana rumahan yang membuat betah belajar seharian. Harga bersahabat untuk kantong mahasiswa.',
+          imgs: [
+            'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1525610553991-2bede1a236e2?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
+          ],
+          hours: '08:00 - 20:00',
+          phone: '+62 341 222 333',
+          amenities: [
+            'WiFi 25Mbps',
+            'Colokan',
+            'AC',
+            'Ruang Diskusi',
+            'Minuman Gratis',
+            'Papan Tulis',
+          ],
+          seats: 10,
+          reviews: [
+            {
+              user: 'Eko T.',
+              rating: 4,
+              text: 'Murah meriah, cocok buat mahasiswa kantong tipis!',
+              date: '2025-01-08',
+            },
+            {
+              user: 'Fitri N.',
+              rating: 4,
+              text: 'Rumahan banget, suasananya homey. Minuman gratis juga ada!',
+              date: '2025-01-02',
+            },
+          ],
+        },
+      ];
+
+      // ===== STATE =====
+      let curUser = null,
+        userBooks = [],
+        allBooks = [],
+        selCafe = null,
+        selSeat = null,
+        selTime = null,
+        revRate = 0,
+        revCafe = null,
+        activeVibes = [],
+        lbImgs = [],
+        lbIdx = 0;
+
+      // ===== HELPERS =====
+      const noiseL = ['', 'Sangat Tenang', 'Tenang', 'Sedang', 'Ramai'];
+      const noiseC = ['', 'bg-green-500', 'bg-green-400', 'bg-yellow-400', 'bg-red-400'];
+      const noiseI = [
+        '',
+        'lucide:volume-x',
+        'lucide:volume-1',
+        'lucide:volume-2',
+        'lucide:volume-2',
+      ];
+      const wifiS = (r) => '★'.repeat(r) + '☆'.repeat(5 - r);
+      const fmtP = (p) => 'Rp ' + p.toLocaleString('id-ID');
+      const ratingL = ['', 'Kurang', 'Cukup', 'Biasa', 'Bagus', 'Sempurna!'];
+
+      // ===== TOAST =====
+      function toast(msg, type = 'info') {
+        const c = document.getElementById('toast-box');
+        const cls = {
+          success: 'bg-green-500/15 border-green-500/30 text-green-300',
+          error: 'bg-red-500/15 border-red-500/30 text-red-300',
+          info: 'bg-brand-500/15 border-brand-500/30 text-brand-300',
+        };
+        const ico = {
+          success: 'lucide:check-circle',
+          error: 'lucide:alert-circle',
+          info: 'lucide:info',
+        };
+        const el = document.createElement('div');
+        el.className = `toast-anim flex items-center gap-3 px-4 py-3 rounded-xl border ${cls[type]} backdrop-blur-xl min-w-[280px] pointer-events-auto`;
+        el.innerHTML = `<iconify-icon icon="${ico[type]}" class="text-lg shrink-0"></iconify-icon><p class="text-sm font-medium">${msg}</p>`;
+        c.appendChild(el);
+        setTimeout(() => {
+          el.style.opacity = '0';
+          el.style.transition = 'opacity .3s';
+          setTimeout(() => el.remove(), 300);
+        }, 3500);
+      }
+
+      // ===== NAVIGATION =====
+      function showPage(p) {
+        document.querySelectorAll('.page').forEach((x) => x.classList.remove('active'));
+        document.getElementById('page-' + p).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (p === 'catalog') renderCatalog();
+        if (p === 'mybookings') renderMyBookings();
+        if (p === 'admin') renderAdmin();
+      }
+
+      // ===== MODALS =====
+      function openModal(id) {
+        const m = document.getElementById(id);
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+      }
+      function closeModal(id) {
+        const m = document.getElementById(id);
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+      }
+
+      // ===== AUTH =====
+      function switchAuth(m) {
+        document.getElementById('auth-login').classList.toggle('hidden', m === 'reg');
+        document.getElementById('auth-reg').classList.toggle('hidden', m !== 'reg');
+        document.getElementById('auth-title').textContent = m === 'reg' ? 'Daftar Akun' : 'Login';
+      }
+      function doLogin() {
+        const e = document.getElementById('l-email').value.trim(),
+          p = document.getElementById('l-pass').value;
+        if (!e || !p) {
+          toast('Isi email dan password!', 'error');
+          return;
+        }
+        curUser = { name: e.split('@')[0], email: e };
+        updateAuth();
+        closeModal('auth-modal');
+        toast('Login berhasil! Selamat datang, ' + curUser.name, 'success');
+      }
+      function doRegister() {
+        const n = document.getElementById('r-name').value.trim(),
+          e = document.getElementById('r-email').value.trim(),
+          p = document.getElementById('r-pass').value;
+        if (!n || !e || !p) {
+          toast('Isi semua field!', 'error');
+          return;
+        }
+        if (p.length < 6) {
+          toast('Password min. 6 karakter!', 'error');
+          return;
+        }
+        curUser = { name: n, email: e };
+        updateAuth();
+        closeModal('auth-modal');
+        toast('Registrasi berhasil! Selamat datang, ' + n, 'success');
+      }
+      function logout() {
+        curUser = null;
+        userBooks = [];
+        updateAuth();
+        showPage('home');
+        toast('Berhasil logout', 'success');
+      }
+      function updateAuth() {
+        if (curUser) {
+          document.getElementById('btn-out').classList.add('hidden');
+          document.getElementById('btn-in').classList.remove('hidden');
+          document.getElementById('btn-in').classList.add('flex');
+          document.getElementById('u-avatar').textContent = curUser.name.charAt(0).toUpperCase();
+          document.getElementById('dd-name').textContent = curUser.name;
+          document.getElementById('dd-email').textContent = curUser.email;
+        } else {
+          document.getElementById('btn-out').classList.remove('hidden');
+          document.getElementById('btn-in').classList.add('hidden');
+          document.getElementById('btn-in').classList.remove('flex');
+        }
+      }
+      function toggleDD() {
+        const m = document.getElementById('dd-menu');
+        m.classList.toggle('hidden');
+        document.getElementById('dd-arrow').style.transform = m.classList.contains('hidden')
+          ? ''
+          : 'rotate(180deg)';
+      }
+      function closeDD() {
+        document.getElementById('dd-menu').classList.add('hidden');
+        document.getElementById('dd-arrow').style.transform = '';
+      }
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#btn-in')) closeDD();
+      });
+      function closeMob() {
+        document.getElementById('mob-menu').classList.add('hidden');
+      }
+
+      // ===== CAFE CARD =====
+      function cafeCard(c, i) {
+        return `<div class="bg-neutral-900 border border-white/10 rounded-2xl overflow-hidden card-hover cursor-pointer group anim-fade" style="animation-delay:${i * 0.08}s" onclick="showDetail(${c.id})">
+    <div class="relative h-52 overflow-hidden"><img src="${c.imgs[0]}" class="w-full h-full object-cover gallery-img" alt="${c.name}" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent"></div>
+    <div class="absolute top-3 right-3 px-2.5 py-1 bg-black/60 backdrop-blur-sm rounded-lg text-xs font-semibold flex items-center gap-1"><span class="text-brand-400">★</span>${c.rating}</div>
+    <div class="absolute top-3 left-3 px-2.5 py-1 bg-brand-500/90 text-black rounded-lg text-xs font-bold">${fmtP(c.price)}/jam</div></div>
+    <div class="p-5"><h3 class="font-semibold text-lg mb-1 group-hover:text-brand-400 transition-colors">${c.name}</h3>
+    <p class="text-stone-500 text-sm flex items-center gap-1 mb-3"><iconify-icon icon="lucide:map-pin" class="text-xs"></iconify-icon>${c.loc}</p>
+    <div class="flex flex-wrap gap-1.5 mb-3">
+      <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-500/10 text-blue-400 rounded text-xs"><iconify-icon icon="lucide:wifi"></iconify-icon>${wifiS(c.wifi)}</span>
+      <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${c.noise <= 2 ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}"><iconify-icon icon="${noiseI[c.noise]}"></iconify-icon>${noiseL[c.noise]}</span>
+      <span class="inline-flex items-center gap-1 px-2 py-1 bg-purple-500/10 text-purple-400 rounded text-xs"><iconify-icon icon="lucide:plug"></iconify-icon>${c.outlets}</span>
+    </div>
+    <div class="flex items-center justify-between"><span class="text-xs text-stone-600">${c.revCount} reviews</span><span class="text-xs text-brand-400 font-medium group-hover:underline">Lihat Detail →</span></div></div></div>`;
+      }
+
+      // ===== POPULAR =====
+      function renderPopular() {
+        const s = [...cafes].sort((a, b) => b.rating - a.rating).slice(0, 3);
+        document.getElementById('popular-grid').innerHTML = s
+          .map((c, i) => cafeCard(c, i))
+          .join('');
+      }
+
+      // ===== CATALOG FILTERS =====
+      function toggleVibe(btn, v) {
+        const i = activeVibes.indexOf(v);
+        if (i > -1) {
+          activeVibes.splice(i, 1);
+          btn.classList.remove('vibe-active');
+        } else {
+          activeVibes.push(v);
+          btn.classList.add('vibe-active');
+        }
+        applyFilters();
+      }
+      function resetFilters() {
+        document.getElementById('f-search').value = '';
+        document.getElementById('f-wifi').value = '';
+        document.getElementById('f-noise').value = '';
+        document.getElementById('f-outlet').value = '';
+        document.getElementById('f-pmin').value = '';
+        document.getElementById('f-pmax').value = '';
+        activeVibes = [];
+        document.querySelectorAll('.vibe-btn').forEach((b) => b.classList.remove('vibe-active'));
+        applyFilters();
+      }
+      function applyFilters() {
+        let f = [...cafes];
+        const q = document.getElementById('f-search').value.toLowerCase(),
+          w = document.getElementById('f-wifi').value,
+          n = document.getElementById('f-noise').value,
+          o = document.getElementById('f-outlet').value,
+          pmin = parseInt(document.getElementById('f-pmin').value) || 0,
+          pmax = parseInt(document.getElementById('f-pmax').value) || 999999,
+          sort = document.getElementById('sort-by').value;
+        if (q)
+          f = f.filter((c) => c.name.toLowerCase().includes(q) || c.loc.toLowerCase().includes(q));
+        if (w) f = f.filter((c) => c.wifi >= parseInt(w));
+        if (n) f = f.filter((c) => c.noise <= parseInt(n));
+        if (o === 'banyak') f = f.filter((c) => c.outlets >= 8);
+        else if (o === 'sedang') f = f.filter((c) => c.outlets >= 4 && c.outlets < 8);
+        else if (o === 'sedikit') f = f.filter((c) => c.outlets < 4);
+        if (activeVibes.length) f = f.filter((c) => activeVibes.some((v) => c.vibe.includes(v)));
+        f = f.filter((c) => c.price >= pmin && c.price <= pmax);
+        if (sort === 'rating') f.sort((a, b) => b.rating - a.rating);
+        else if (sort === 'price-low') f.sort((a, b) => a.price - b.price);
+        else if (sort === 'price-high') f.sort((a, b) => b.price - a.price);
+        else if (sort === 'name') f.sort((a, b) => a.name.localeCompare(b.name));
+        document.getElementById('res-count').textContent = f.length;
+        document.getElementById('cat-grid').innerHTML = f.length
+          ? f.map((c, i) => cafeCard(c, i)).join('')
+          : '<div class="col-span-2 text-center py-20"><iconify-icon icon="lucide:search-x" class="text-5xl text-stone-700 mb-4 block mx-auto"></iconify-icon><p class="text-stone-500 mb-3">Tidak ada tempat yang sesuai filter.</p><button onclick="resetFilters()" class="text-brand-400 text-sm hover:underline">Reset Filter</button></div>';
+      }
+      function renderCatalog() {
+        applyFilters();
+      }
+
+      // ===== HERO SEARCH / QUICK FILTER =====
+      function heroSearch() {
+        const q = document.getElementById('hero-search').value.trim();
+        showPage('catalog');
+        if (q) {
+          document.getElementById('f-search').value = q;
+          applyFilters();
+        }
+      }
+      function quickFilter(t) {
+        showPage('catalog');
+        setTimeout(() => {
+          resetFilters();
+          if (t === 'wifi') document.getElementById('f-wifi').value = '5';
+          else if (t === 'quiet') document.getElementById('f-noise').value = '2';
+          else if (t === 'outlet') document.getElementById('f-outlet').value = 'banyak';
+          else if (t === 'aesthetic') {
+            activeVibes = ['aesthetic'];
+            document.querySelectorAll('.vibe-btn').forEach((b) => {
+              if (b.textContent.includes('Aesthetic')) b.classList.add('vibe-active');
+            });
+          }
+          applyFilters();
+        }, 50);
+      }
+
+      // ===== LIGHTBOX =====
+      function openLB(imgs, idx) {
+        lbImgs = imgs;
+        lbIdx = idx;
+        document.getElementById('lb-img').src = lbImgs[lbIdx];
+        document.getElementById('lb-counter').textContent = lbIdx + 1 + ' / ' + lbImgs.length;
+        const lb = document.getElementById('lightbox');
+        lb.classList.remove('hidden');
+        lb.classList.add('flex');
+      }
+      function closeLB() {
+        const lb = document.getElementById('lightbox');
+        lb.classList.add('hidden');
+        lb.classList.remove('flex');
+      }
+      function navLB(d) {
+        lbIdx = (lbIdx + d + lbImgs.length) % lbImgs.length;
+        document.getElementById('lb-img').src = lbImgs[lbIdx];
+        document.getElementById('lb-counter').textContent = lbIdx + 1 + ' / ' + lbImgs.length;
+      }
+      document.addEventListener('keydown', (e) => {
+        if (!document.getElementById('lightbox').classList.contains('hidden')) {
+          if (e.key === 'Escape') closeLB();
+          if (e.key === 'ArrowLeft') navLB(-1);
+          if (e.key === 'ArrowRight') navLB(1);
+        }
+      });
+
+      // ===== DETAIL PAGE =====
+      function showDetail(id) {
+        const c = cafes.find((x) => x.id === id);
+        if (!c) return;
+        selCafe = id;
+        revCafe = id;
+        const gal = `<div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8 rounded-2xl overflow-hidden" style="max-height:440px">
+    <div class="col-span-2 row-span-2 h-[440px] overflow-hidden cursor-pointer" onclick="openLB(cafes.find(x=>x.id===${c.id}).imgs,0)"><img src="${c.imgs[0]}" class="w-full h-full object-cover gallery-img" loading="lazy"></div>
+    ${c.imgs
+      .slice(1, 5)
+      .map(
+        (img, i) =>
+          `<div class="hidden md:block h-[216px] overflow-hidden cursor-pointer relative" onclick="openLB(cafes.find(x=>x.id===${c.id}).imgs,${i + 1})"><img src="${img}" class="w-full h-full object-cover gallery-img" loading="lazy">${i === 3 && c.imgs.length > 5 ? `<div class="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold text-lg">+${c.imgs.length - 5} foto</div>` : ''}</div>`
+      )
+      .join('')}
+  </div>`;
+
+        const info = `<div class="flex flex-col lg:flex-row gap-8">
+    <div class="flex-1 min-w-0">
+      <button onclick="showPage('catalog')" class="text-sm text-stone-500 hover:text-brand-400 transition-colors flex items-center gap-1 mb-4"><iconify-icon icon="lucide:arrow-left"></iconify-icon>Kembali ke Katalog</button>
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mb-3">${c.name}</h1>
+      <div class="flex items-center gap-3 flex-wrap mb-5">
+        <span class="flex items-center gap-1 text-brand-400 font-bold text-lg"><span>★</span>${c.rating}</span>
+        <span class="text-stone-500 text-sm">(${c.revCount} reviews)</span><span class="text-stone-700">•</span>
+        <span class="text-stone-400 text-sm flex items-center gap-1"><iconify-icon icon="lucide:map-pin"></iconify-icon>${c.loc}</span>
+      </div>
+      <div class="flex flex-wrap gap-2 mb-6">${c.vibe.map((v) => `<span class="px-3 py-1.5 bg-pink-500/10 text-pink-400 rounded-lg text-sm capitalize">${v}</span>`).join('')}</div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        <div class="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4 text-center"><iconify-icon icon="lucide:wifi" class="text-blue-400 text-xl mb-1"></iconify-icon><p class="text-xs text-stone-500 mb-1">WiFi</p><p class="text-sm font-semibold text-blue-400">${wifiS(c.wifi)}</p></div>
+        <div class="bg-${c.noise <= 2 ? 'green' : 'yellow'}-500/5 border border-${c.noise <= 2 ? 'green' : 'yellow'}-500/10 rounded-xl p-4 text-center"><iconify-icon icon="${noiseI[c.noise]}" class="text-${c.noise <= 2 ? 'green' : 'yellow'}-400 text-xl mb-1"></iconify-icon><p class="text-xs text-stone-500 mb-1">Kebisingan</p><p class="text-sm font-semibold text-${c.noise <= 2 ? 'green' : 'yellow'}-400">${noiseL[c.noise]}</p></div>
+        <div class="bg-purple-500/5 border border-purple-500/10 rounded-xl p-4 text-center"><iconify-icon icon="lucide:plug" class="text-purple-400 text-xl mb-1"></iconify-icon><p class="text-xs text-stone-500 mb-1">Colokan</p><p class="text-sm font-semibold text-purple-400">${c.outlets} titik</p></div>
+      </div>
+      <div class="bg-neutral-900 border border-white/10 rounded-xl p-4 mb-6">
+        <p class="text-sm text-stone-400 mb-2 font-medium">Tingkat Kebisingan</p>
+        <div class="w-full bg-neutral-800 rounded-full h-3 overflow-hidden"><div class="${noiseC[c.noise]} rounded-full h-full transition-all" style="width:${c.noise * 25}%"></div></div>
+        <div class="flex justify-between text-xs text-stone-600 mt-1.5"><span>🔇 Tenang</span><span>🔊 Ramai</span></div>
+      </div>
+      <p class="text-stone-400 leading-relaxed mb-8">${c.desc}</p>
+      <div class="mb-8"><h3 class="font-semibold text-lg mb-4 flex items-center gap-2"><iconify-icon icon="lucide:list-checks" class="text-brand-400"></iconify-icon>Fasilitas</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">${c.amenities.map((a) => `<div class="flex items-center gap-2 text-sm text-stone-400"><iconify-icon icon="lucide:check-circle-2" class="text-green-400 shrink-0"></iconify-icon>${a}</div>`).join('')}</div>
+      </div>
+      <div class="border-t border-white/10 pt-8">
+        <div class="flex items-center justify-between mb-6"><h3 class="font-semibold text-lg flex items-center gap-2"><iconify-icon icon="lucide:message-square" class="text-brand-400"></iconify-icon>Review (${c.reviews.length})</h3>
+          <button onclick="openRevModal(${c.id})" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-black font-semibold text-sm rounded-lg transition-colors flex items-center gap-1.5"><iconify-icon icon="lucide:pen-line"></iconify-icon>Tulis Review</button></div>
+        <div class="space-y-4" id="rev-list-${c.id}">${c.reviews.map((r) => revCard(r)).join('')}</div>
+      </div>
+    </div>
+    <div class="lg:w-80 shrink-0">
+      <div class="bg-neutral-900 border border-white/10 rounded-2xl p-6 sticky top-24">
+        <div class="text-2xl font-bold text-brand-400 mb-1">${fmtP(c.price)}<span class="text-sm text-stone-500 font-normal">/jam</span></div>
+        <div class="space-y-3 mb-6 text-sm">
+          <div class="flex items-center gap-2 text-stone-400"><iconify-icon icon="lucide:clock"></iconify-icon>${c.hours}</div>
+          <div class="flex items-center gap-2 text-stone-400"><iconify-icon icon="lucide:phone"></iconify-icon>${c.phone}</div>
+          <div class="flex items-center gap-2 text-stone-400"><iconify-icon icon="lucide:armchair"></iconify-icon>${c.seats} seat tersedia</div>
+        </div>
+        <button onclick="openBookModal(${c.id})" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-black font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm mb-2"><iconify-icon icon="lucide:calendar-check"></iconify-icon>Booking Sekarang</button>
+        <button onclick="openRevModal(${c.id})" class="w-full py-3 border border-white/10 hover:border-white/20 text-stone-400 hover:text-white rounded-xl transition-colors text-sm flex items-center justify-center gap-2"><iconify-icon icon="lucide:star"></iconify-icon>Tulis Review</button>
+        <div class="mt-6 pt-5 border-t border-white/10">
+          <p class="text-xs text-stone-500 uppercase tracking-wider mb-3 font-semibold">Jam Ramai</p>
+          <div class="grid grid-cols-7 gap-1">${['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d, i) => `<div class="text-center"><p class="text-[10px] text-stone-600 mb-1">${d}</p><div class="h-8 bg-neutral-800 rounded relative overflow-hidden"><div class="absolute bottom-0 left-0 right-0 rounded ${i >= 5 ? 'bg-red-500/40' : 'bg-green-500/30'}" style="height:${i >= 5 ? 75 : i === 0 ? 35 : 25}%"></div></div></div>`).join('')}</div>
+          <p class="text-[10px] text-stone-600 mt-2">Weekend cenderung lebih ramai</p>
+        </div>
+      </div>
+    </div>
+  </div>`;
+        document.getElementById('detail-box').innerHTML = gal + info;
+        showPage('detail');
+      }
+
+      function revCard(r) {
+        return `<div class="bg-neutral-900/50 border border-white/5 rounded-xl p-5">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 text-sm font-bold">${r.user.charAt(0)}</div><div><p class="font-medium text-sm">${r.user}</p><p class="text-xs text-stone-600">${r.date}</p></div></div>
+      <div class="text-brand-400 text-sm">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+    </div>
+    <p class="text-stone-400 text-sm leading-relaxed">${r.text}</p>
+    ${r.photo ? `<img src="${r.photo}" class="mt-3 w-36 h-28 object-cover rounded-lg border border-white/10 cursor-pointer gallery-img" onclick="openLB(['${r.photo}'],0)">` : ''}
+  </div>`;
+      }
+
+      // ===== BOOKING =====
+      function openBookModal(cid) {
+        if (!curUser) {
+          toast('Silakan login terlebih dahulu!', 'error');
+          openModal('auth-modal');
+          return;
+        }
+        const c = cafes.find((x) => x.id === cid);
+        if (!c) return;
+        selCafe = cid;
+        selSeat = null;
+        selTime = null;
+        document.getElementById('bk-cafename').querySelector('span').textContent = c.name;
+        document.getElementById('bk-summary').classList.add('hidden');
+        const today = new Date().toISOString().split('T')[0];
+        const dt = document.getElementById('bk-date');
+        dt.min = today;
+        dt.value = today;
+        dt.onchange = regenSeats;
+        // Time slots
+        const times = [
+          '08:00',
+          '09:00',
+          '10:00',
+          '11:00',
+          '12:00',
+          '13:00',
+          '14:00',
+          '15:00',
+          '16:00',
+          '17:00',
+          '18:00',
+          '19:00',
+          '20:00',
+          '21:00',
+          '22:00',
+        ];
+        document.getElementById('time-grid').innerHTML = times
+          .map((t) => {
+            const taken = Math.random() < 0.15;
+            return `<button onclick="pickTime(this,'${t}')" class="time-slot px-2 py-2 text-xs rounded-lg border border-white/10 bg-neutral-800 text-stone-400 ${taken ? 'opacity-30 cursor-not-allowed line-through' : ''}" ${taken ? 'disabled' : ''}>${t}</button>`;
+          })
+          .join('');
+        genSeats(c);
+        openModal('booking-modal');
+      }
+
+      function pickTime(el, t) {
+        document.querySelectorAll('.time-slot').forEach((s) => s.classList.remove('ts-selected'));
+        el.classList.add('ts-selected');
+        selTime = t;
+        updSum();
+      }
+      function pickSeat(el, n) {
+        document
+          .querySelectorAll('.seat:not(.taken)')
+          .forEach((s) => s.classList.remove('selected'));
+        el.classList.add('selected');
+        selSeat = n;
+        updSum();
+      }
+
+      function genSeats(c) {
+        const total = c.seats;
+        const taken = new Set();
+        const cnt = Math.floor(Math.random() * total * 0.3);
+        while (taken.size < cnt) taken.add(Math.floor(Math.random() * total) + 1);
+        let h = '';
+        for (let i = 1; i <= total; i++) {
+          const t = taken.has(i);
+          h += `<button onclick="pickSeat(this,${i})" class="seat h-9 rounded-lg text-xs font-medium ${t ? 'taken' : 'bg-neutral-700 text-stone-400'}" ${t ? 'disabled' : ''}>${i}</button>`;
+        }
+        document.getElementById('seat-grid').innerHTML = h;
+      }
+      function regenSeats() {
+        const c = cafes.find((x) => x.id === selCafe);
+        if (c) genSeats(c);
+        selSeat = null;
+        updSum();
+      }
+
+      function updSum() {
+        if (selSeat && selTime) {
+          const c = cafes.find((x) => x.id === selCafe);
+          const d = document.getElementById('bk-date').value;
+          document.getElementById('bk-sum-text').textContent =
+            `${c.name} • ${d} • ${selTime} • Seat #${selSeat} • ${fmtP(c.price)}`;
+          document.getElementById('bk-summary').classList.remove('hidden');
+        }
+      }
+
+      function confirmBooking() {
+        if (!selTime) {
+          toast('Pilih jam terlebih dahulu!', 'error');
+          return;
+        }
+        if (!selSeat) {
+          toast('Pilih seat terlebih dahulu!', 'error');
+          return;
+        }
+        const c = cafes.find((x) => x.id === selCafe);
+        const d = document.getElementById('bk-date').value;
+        const bk = {
+          id: Date.now(),
+          cafeId: selCafe,
+          cafeName: c.name,
+          date: d,
+          time: selTime,
+          seat: selSeat,
+          price: c.price,
+          status: 'pending',
+          user: curUser.name,
+          email: curUser.email,
+        };
+        userBooks.push(bk);
+        allBooks.push(bk);
+        closeModal('booking-modal');
+        toast(`✅ Booking berhasil! ${c.name} — ${d} ${selTime} Seat #${selSeat}`, 'success');
+      }
+
+      // ===== REVIEW =====
+      function openRevModal(cid) {
+        if (!curUser) {
+          toast('Silakan login terlebih dahulu!', 'error');
+          openModal('auth-modal');
+          return;
+        }
+        revCafe = cid;
+        revRate = 0;
+        document.querySelectorAll('#rev-stars span').forEach((s) => {
+          s.classList.remove('text-brand-400');
+          s.classList.add('text-stone-700');
+        });
+        document.getElementById('rev-rating-label').textContent = 'Klik untuk memberi rating';
+        document.getElementById('rev-text').value = '';
+        document.getElementById('photo-prev').classList.add('hidden');
+        document.getElementById('photo-inp').value = '';
+        openModal('review-modal');
+      }
+
+      function setRevRating(r) {
+        revRate = r;
+        const stars = document.querySelectorAll('#rev-stars span');
+        stars.forEach((s, i) => {
+          if (i < r) {
+            s.classList.remove('text-stone-700');
+            s.classList.add('text-brand-400');
+          } else {
+            s.classList.remove('text-brand-400');
+            s.classList.add('text-stone-700');
+          }
+        });
+        document.getElementById('rev-rating-label').textContent = ratingL[r];
+      }
+
+      function handlePhoto(inp) {
+        if (inp.files && inp.files[0]) {
+          const r = new FileReader();
+          r.onload = (e) => {
+            document.getElementById('photo-img').src = e.target.result;
+            document.getElementById('photo-prev').classList.remove('hidden');
+          };
+          r.readAsDataURL(inp.files[0]);
+        }
+      }
+
+      function submitReview() {
+        if (!revRate) {
+          toast('Beri rating terlebih dahulu!', 'error');
+          return;
+        }
+        const txt = document.getElementById('rev-text').value.trim();
+        if (!txt) {
+          toast('Tulis review kamu!', 'error');
+          return;
+        }
+        const c = cafes.find((x) => x.id === revCafe);
+        const photoEl = document.getElementById('photo-prev');
+        const photo = photoEl.classList.contains('hidden')
+          ? null
+          : document.getElementById('photo-img').src;
+        c.reviews.unshift({
+          user: curUser.name,
+          rating: revRate,
+          text: txt,
+          date: new Date().toISOString().split('T')[0],
+          photo: photo,
+        });
+        c.revCount++;
+        c.rating =
+          Math.round((c.reviews.reduce((s, r) => s + r.rating, 0) / c.reviews.length) * 10) / 10;
+        closeModal('review-modal');
+        toast('Review berhasil dikirim! Terima kasih 🎉', 'success');
+        if (document.getElementById('page-detail').classList.contains('active'))
+          showDetail(revCafe);
+      }
+
+      // ===== MY BOOKINGS =====
+      function renderMyBookings() {
+        const el = document.getElementById('bk-list');
+        if (!curUser) {
+          el.innerHTML =
+            '<div class="text-center py-20"><iconify-icon icon="lucide:lock" class="text-5xl text-stone-700 mb-4 block mx-auto"></iconify-icon><p class="text-stone-500 mb-4">Login untuk melihat booking kamu.</p><button onclick="openModal(\'auth-modal\')" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-black font-semibold text-sm rounded-lg transition-colors">Login</button></div>';
+          return;
+        }
+        if (!userBooks.length) {
+          el.innerHTML =
+            '<div class="text-center py-20"><iconify-icon icon="lucide:calendar-x" class="text-5xl text-stone-700 mb-4 block mx-auto"></iconify-icon><p class="text-stone-500 mb-4">Belum ada booking.</p><button onclick="showPage(\'catalog\')" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-black font-semibold text-sm rounded-lg transition-colors">Cari Tempat Belajar</button></div>';
+          return;
+        }
+        el.innerHTML = userBooks
+          .map((b) => {
+            const c = cafes.find((x) => x.id === b.cafeId);
+            return `<div class="bg-neutral-900 border border-white/10 rounded-2xl p-5 mb-4 flex flex-col sm:flex-row gap-4 items-start anim-fade">
+      ${c ? `<img src="${c.imgs[0]}" class="w-full sm:w-28 h-28 object-cover rounded-xl shrink-0 cursor-pointer" onclick="showDetail(${c.id})">` : ''}
+      <div class="flex-1 min-w-0"><h3 class="font-semibold text-lg cursor-pointer hover:text-brand-400 transition-colors" onclick="showDetail(${b.cafeId})">${b.cafeName}</h3>
+        <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-stone-400">
+          <span class="flex items-center gap-1"><iconify-icon icon="lucide:calendar"></iconify-icon>${b.date}</span>
+          <span class="flex items-center gap-1"><iconify-icon icon="lucide:clock"></iconify-icon>${b.time}</span>
+          <span class="flex items-center gap-1"><iconify-icon icon="lucide:armchair"></iconify-icon>Seat #${b.seat}</span>
+          <span class="flex items-center gap-1"><iconify-icon icon="lucide:banknote"></iconify-icon>${fmtP(b.price)}</span>
+        </div></div>
+      <div class="flex flex-col items-end gap-2 shrink-0">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold ${b.status === 'confirmed' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'}">
+          <iconify-icon icon="lucide:${b.status === 'confirmed' ? 'check-circle' : 'clock'}"></iconify-icon>${b.status === 'confirmed' ? 'Terkonfirmasi' : 'Menunggu'}</span>
+        <button onclick="cancelBooking(${b.id})" class="text-xs text-stone-600 hover:text-red-400 transition-colors flex items-center gap-1"><iconify-icon icon="lucide:x-circle"></iconify-icon>Batalkan</button>
+      </div></div>`;
+          })
+          .join('');
+      }
+
+      function cancelBooking(id) {
+        const idx = userBooks.findIndex((b) => b.id === id);
+        if (idx > -1) {
+          const b = userBooks[idx];
+          userBooks.splice(idx, 1);
+          const ai = allBooks.findIndex((x) => x.id === id);
+          if (ai > -1) allBooks.splice(ai, 1);
+          toast(`Booking ${b.cafeName} dibatalkan`, 'info');
+          renderMyBookings();
+        }
+      }
+
+      // ===== ADMIN =====
+      function adminTab(t) {
+        document.querySelectorAll('.apanel').forEach((p) => p.classList.add('hidden'));
+        document.getElementById('ap-' + t).classList.remove('hidden');
+        document.querySelectorAll('.atab').forEach((b) => {
+          b.classList.remove('text-brand-400', 'border-brand-500');
+          b.classList.add('text-stone-500', 'border-transparent');
+        });
+        const btn = document.querySelector(`.atab[data-t="${t}"]`);
+        btn.classList.remove('text-stone-500', 'border-transparent');
+        btn.classList.add('text-brand-400', 'border-brand-500');
+      }
+
+      function renderAdmin() {
+        document.getElementById('s-places').textContent = cafes.length;
+        document.getElementById('s-books').textContent = allBooks.length;
+        const tr = cafes.reduce((s, c) => s + c.reviews.length, 0);
+        document.getElementById('s-revs').textContent = tr;
+        const ar = cafes.reduce((s, c) => s + c.rating, 0) / cafes.length;
+        document.getElementById('s-avg').textContent = ar.toFixed(1);
+
+        // Places
+        document.getElementById('ap-places').innerHTML =
+          `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b border-white/10 text-left">
+    <th class="py-3 px-4 text-stone-500 font-medium">Nama</th><th class="py-3 px-4 text-stone-500 font-medium">Lokasi</th><th class="py-3 px-4 text-stone-500 font-medium">Rating</th><th class="py-3 px-4 text-stone-500 font-medium">Harga</th><th class="py-3 px-4 text-stone-500 font-medium">Seat</th><th class="py-3 px-4 text-stone-500 font-medium">Status</th></tr></thead><tbody>
+    ${cafes.map((c) => `<tr class="border-b border-white/5 hover:bg-white/[0.02]"><td class="py-3 px-4 font-medium">${c.name}</td><td class="py-3 px-4 text-stone-400">${c.loc}</td><td class="py-3 px-4"><span class="text-brand-400">★</span> ${c.rating}</td><td class="py-3 px-4 text-stone-400">${fmtP(c.price)}</td><td class="py-3 px-4 text-stone-400">${c.seats}</td><td class="py-3 px-4"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-green-500/10 text-green-400 border border-green-500/20"><iconify-icon icon="lucide:check-circle" class="text-[10px]"></iconify-icon>Active</span></td></tr>`).join('')}</tbody></table></div>`;
+
+        // Bookings
+        document.getElementById('ap-bookings').innerHTML = allBooks.length
+          ? `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b border-white/10 text-left">
+    <th class="py-3 px-4 text-stone-500 font-medium">User</th><th class="py-3 px-4 text-stone-500 font-medium">Tempat</th><th class="py-3 px-4 text-stone-500 font-medium">Tanggal</th><th class="py-3 px-4 text-stone-500 font-medium">Jam</th><th class="py-3 px-4 text-stone-500 font-medium">Seat</th><th class="py-3 px-4 text-stone-500 font-medium">Status</th><th class="py-3 px-4 text-stone-500 font-medium">Aksi</th></tr></thead><tbody>
+    ${allBooks
+      .map(
+        (b) => `<tr class="border-b border-white/5 hover:bg-white/[0.02]" id="brow-${b.id}">
+      <td class="py-3 px-4 font-medium">${b.user}</td><td class="py-3 px-4 text-stone-400">${b.cafeName}</td><td class="py-3 px-4 text-stone-400">${b.date}</td><td class="py-3 px-4 text-stone-400">${b.time}</td><td class="py-3 px-4 text-stone-400">#${b.seat}</td>
+      <td class="py-3 px-4"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs ${b.status === 'confirmed' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'}">${b.status === 'confirmed' ? 'Confirmed' : 'Pending'}</span></td>
+      <td class="py-3 px-4 flex gap-2">${b.status === 'pending' ? `<button onclick="approveBk(${b.id})" class="text-xs text-brand-400 hover:text-brand-300 transition-colors font-medium">Approve</button><button onclick="rejectBk(${b.id})" class="text-xs text-red-400 hover:text-red-300 transition-colors font-medium">Reject</button>` : '<span class="text-xs text-stone-600">—</span>'}</td></tr>`
+      )
+      .join('')}</tbody></table></div>`
+          : '<div class="text-center py-16"><iconify-icon icon="lucide:inbox" class="text-4xl text-stone-700 block mx-auto mb-3"></iconify-icon><p class="text-stone-600">Belum ada booking masuk</p></div>';
+
+        // Reviews
+        const allR = [];
+        cafes.forEach((c) =>
+          c.reviews.forEach((r) => allR.push({ ...r, cafeName: c.name, cafeId: c.id }))
+        );
+        allR.sort((a, b) => b.date.localeCompare(a.date));
+        document.getElementById('ap-reviews').innerHTML = allR.length
+          ? `<div class="space-y-3">${allR
+              .map(
+                (r) => `
+    <div class="bg-neutral-900/50 border border-white/5 rounded-xl p-4 flex items-start gap-4">
+      <div class="w-9 h-9 rounded-full bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 text-sm font-bold shrink-0">${r.user.charAt(0)}</div>
+      <div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-medium text-sm">${r.user}</span><span class="text-xs text-stone-600">di <span class="text-stone-400">${r.cafeName}</span></span><span class="text-brand-400 text-xs">${'★'.repeat(r.rating)}</span><span class="text-xs text-stone-600">${r.date}</span></div><p class="text-stone-400 text-sm mt-1">${r.text}</p></div>
+    </div>`
+              )
+              .join('')}</div>`
+          : '<div class="text-center py-16"><iconify-icon icon="lucide:message-square" class="text-4xl text-stone-700 block mx-auto mb-3"></iconify-icon><p class="text-stone-600">Belum ada review</p></div>';
+
+        adminTab('places');
+      }
+
+      function approveBk(id) {
+        const b = allBooks.find((x) => x.id === id);
+        if (b) {
+          b.status = 'confirmed';
+          const ub = userBooks.find((x) => x.id === id);
+          if (ub) ub.status = 'confirmed';
+          toast(`Booking ${b.cafeName} di-approve!`, 'success');
+          renderAdmin();
+        }
+      }
+      function rejectBk(id) {
+        const idx = allBooks.findIndex((x) => x.id === id);
+        if (idx > -1) {
+          const b = allBooks[idx];
+          allBooks.splice(idx, 1);
+          const ui = userBooks.findIndex((x) => x.id === id);
+          if (ui > -1) userBooks.splice(ui, 1);
+          toast(`Booking ${b.cafeName} ditolak`, 'info');
+          renderAdmin();
+        }
+      }
+
+      // ===== INIT =====
+      document.addEventListener('DOMContentLoaded', () => {
+        renderPopular();
+        renderCatalog();
+      });
+    </script>
+  </body>
+</html>
